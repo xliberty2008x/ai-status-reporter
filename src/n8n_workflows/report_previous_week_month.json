@@ -1,0 +1,407 @@
+{
+    "nodes": [
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C09111P5JN6",
+            "mode": "list",
+            "cachedResultName": "project-status-update"
+          },
+          "text": "={{ $json.output }}",
+          "otherOptions": {
+            "includeLinkToWorkflow": false,
+            "mrkdwn": true
+          }
+        },
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.3,
+        "position": [
+          128,
+          -672
+        ],
+        "id": "9531f018-c19a-4125-8013-e5615dd7f33d",
+        "name": "Send Report to Slack",
+        "webhookId": "d13a6a14-732d-4167-bcce-57ba4826b97d",
+        "credentials": {
+          "slackApi": {
+            "id": "h4hYe6hY0YHsd0no",
+            "name": "Vira Bot"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ JSON.stringify($json) }}",
+          "options": {
+            "systemMessage": "# Universal AI Assistant Prompt for Project Status Reports\n\nYou are an AI assistant analyzing project status change data from our Notion database. Your task is to create a comprehensive, insightful report based on the data provided to you.\n\n## IMPORTANT: Language Requirements\n- **Generate ALL reports in UKRAINIAN language (Українська мова)**\n- Use proper Ukrainian business terminology\n- Keep project names in their original form (usually English)\n- Format dates in Ukrainian format (день місяць рік)\n\n## Your Capabilities:\n- Analyze project status transitions and patterns\n- Identify trends, bottlenecks, and achievements\n- Provide actionable insights and recommendations\n- Adapt your analysis based on the time period of the data (could be daily, weekly, monthly, or custom range)\n\n## Data Analysis Guidelines:\n\n### 1. Automatic Period Detection\n- Examine the date range in the provided data\n- Automatically determine if this is a weekly, monthly, or other period report\n- Adjust your report title and scope accordingly\n\n### 2. Key Metrics to Analyze:\n- **Status Transitions**: Track how projects move through the pipeline\n- **Team Performance**: Analyze productivity and bottlenecks by team\n- **Platform Distribution**: Understand focus areas across platforms (GP, AMZ, iOS, Fire TV)\n- **Velocity Metrics**: Time spent in each status, completion rates\n- **Trends**: Compare with historical patterns if available\n\n### 3. Report Structure:\nGenerate your report with these sections:\n\n#### 📊 Заголовок звіту / Report Header\n- Clearly state the period covered (e.g., \"Тижневий звіт: 5-11 серпня\" or \"Місячний звіт: Липень 2025\")\n- Total number of status changes analyzed with exact count\n- Report generation timestamp\n\n#### 🎯 Резюме / Executive Summary  \n- 3-5 key highlights with SPECIFIC DATA (e.g., \"15 проектів перейшли в продакшн\")\n- Most significant achievements with project names\n- Critical issues with exact numbers and project references\n\n#### 📈 Аналіз потоку статусів / Status Flow Analysis\n**MUST include specific data references:**\n- \"X проектів перейшли в LIVE, включаючи: [list project names]\"\n- \"Y проектів зараз в DEVELOPMENT: [list top projects]\"  \n- \"Z проектів в QA, з них N застрягли більше тижня\"\n- For blocked projects: list each by name with reason\n\n#### 👥 Продуктивність команд / Team Performance\n**Include exact metrics:**\n- \"Команда [Name]: X змін статусів, Y проектів завершено\"\n- \"Найшвидша доставка: команда [Name] - середній час Z днів\"\n- \"Потребують підтримки: команда [Name] з N заблокованими проектами\"\n\n#### 🚀 Розподіл по платформах / Platform Insights\n**Provide specific numbers:**\n- \"iOS: X проектів (Y% від загальної кількості)\"\n- \"AMZ: X проектів, з них Y завершено\"\n- \"Fire TV: X проектів, N заблоковано\"\n\n#### ⚠️ Потребує уваги / Attention Required\n**List specific projects and timeframes:**\n- \"Проект '[Name]' застряг в статусі [Status] вже X днів\"\n- \"N проектів повернулися з REVIEW в DEVELOPMENT\"\n- \"Аномалія: [specific pattern with data]\"\n\n#### 💡 Рекомендації / Recommendations\n**Data-driven suggestions:**\n- Based on X blocked projects in [team/platform], recommend...\n- With Y% projects stuck in review, suggest...\n- Given N day average in QA, propose...\n\n#### 📋 Детальна розбивка / Detailed Breakdown\n- Include specific project transitions with dates\n- Show exact status change counts per category\n\n## Output Format:\n- **WRITE ENTIRELY IN UKRAINIAN LANGUAGE**\n- Always include SPECIFIC NUMBERS and PROJECT NAMES\n- Use percentage calculations where relevant (e.g., \"45% проектів завершено\")\n- Include emojis for visual appeal and quick scanning\n- Use bullet points for lists\n- **Bold** important metrics and findings\n- Keep the tone professional but approachable\n- Every claim must be backed by data (no vague statements)\n\n## Adaptive Intelligence:\n- For WEEKLY reports: Focus on immediate progress and short-term blockers\n- For MONTHLY reports: Emphasize trends, patterns, and strategic insights\n- For OTHER periods: Adjust depth and focus based on the data volume and timespan\n\n## Data Handling:\n- Process whatever data structure you receive (could be raw records or aggregated data)\n- Extract meaningful insights regardless of data format\n- If data seems incomplete, note this in your analysis\n- Handle edge cases gracefully (empty periods, single status changes, etc.)\n\n## Special Considerations:\n- Ukrainian project names should be kept as-is but explained if relevant\n- Status progression typically follows: BACKLOG → DEVELOPMENT → QA → LIVE\n- \"UA\" statuses refer to User Acquisition phases\n- Consider cultural context (Ukrainian game development industry)\n\n## FINAL REQUIREMENTS CHECKLIST:\n✅ Report MUST be in Ukrainian language\n✅ Every section MUST include specific data (numbers, percentages, project names)\n✅ NO vague statements - only data-backed claims\n✅ Include project names when discussing specific issues or achievements\n✅ Calculate percentages and trends where applicable\n✅ Provide actionable recommendations based on specific metrics\n\nRemember: Your goal is to provide VALUE through insights with CONCRETE DATA REFERENCES, not just summarize. Think like a Ukrainian project manager who needs to make data-driven decisions.\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          -432,
+          -656
+        ],
+        "id": "5210d9e1-5d40-48a7-b4c4-09e095508843",
+        "name": "AI Agent - Generate Report"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Process and aggregate monthly data (reproducing Python logic from aggregate_reports.py)\nconst records = $input.all();\nconst reportContext = $node['Check If Last Day of Month'].json;\n\n// Initialize aggregation structures\nlet aggregated = {\n  reportType: 'monthly',\n  period: `Monthly Report: ${reportContext.currentMonth}`,\n  totalChanges: records.length,\n  executionTime: reportContext.executionTime,\n  \n  // Status flow tracking\n  statusTransitions: {},\n  \n  // Team metrics\n  teamMetrics: {},\n  \n  // Platform distribution\n  platformMetrics: {},\n  \n  // Projects by status\n  projectsByStatus: {\n    moved_to_production: [],\n    in_development: [],\n    in_qa: [],\n    blocked: [],\n    new_projects: []\n  },\n  \n  // Monthly trends\n  weeklyTrends: {},\n  \n  // Raw records for AI\n  records: []\n};\n\n// Process each record\nfor (const item of records) {\n  const record = item.json;\n  \n  // Extract fields (n8n returns them with property_ prefix)\n  const date = record.property_date?.start || null;\n  const projectName = record.property_project_name || 'Unknown';\n  const team = record.property_team || 'Unknown';\n  const platform = record.property_platform || 'Unknown';\n  const previousStatus = record.property_previous_status || 'Unknown';\n  const newStatus = record.property_new_status || 'Unknown';\n  const version = record.property_version || 'Unknown';\n  const releaseType = record.property_release_type || null;\n  const changedBy = record.property_changed_by || null;\n  const whatsNew = record.property_whats_new || null;\n  \n  // Track weekly trends for monthly report\n  if (date) {\n    const weekNumber = Math.ceil(new Date(date).getDate() / 7);\n    const weekKey = `Week ${weekNumber}`;\n    if (!aggregated.weeklyTrends[weekKey]) {\n      aggregated.weeklyTrends[weekKey] = {\n        changes: 0,\n        projects: new Set()\n      };\n    }\n    aggregated.weeklyTrends[weekKey].changes++;\n    aggregated.weeklyTrends[weekKey].projects.add(projectName);\n  }\n  \n  // Track status transitions\n  const transitionKey = `${previousStatus} → ${newStatus}`;\n  if (!aggregated.statusTransitions[transitionKey]) {\n    aggregated.statusTransitions[transitionKey] = {\n      count: 0,\n      projects: []\n    };\n  }\n  aggregated.statusTransitions[transitionKey].count++;\n  aggregated.statusTransitions[transitionKey].projects.push(projectName);\n  \n  // Track team metrics\n  if (!aggregated.teamMetrics[team]) {\n    aggregated.teamMetrics[team] = {\n      totalChanges: 0,\n      projectsWorkedOn: new Set(),\n      statusChanges: [],\n      completedProjects: 0\n    };\n  }\n  aggregated.teamMetrics[team].totalChanges++;\n  aggregated.teamMetrics[team].projectsWorkedOn.add(projectName);\n  aggregated.teamMetrics[team].statusChanges.push(transitionKey);\n  if (newStatus === 'LIVE' || newStatus === 'CREO PRODUCTION') {\n    aggregated.teamMetrics[team].completedProjects++;\n  }\n  \n  // Track platform metrics\n  if (!aggregated.platformMetrics[platform]) {\n    aggregated.platformMetrics[platform] = {\n      totalChanges: 0,\n      projects: new Set(),\n      completedProjects: 0\n    };\n  }\n  aggregated.platformMetrics[platform].totalChanges++;\n  aggregated.platformMetrics[platform].projects.add(projectName);\n  if (newStatus === 'LIVE' || newStatus === 'CREO PRODUCTION') {\n    aggregated.platformMetrics[platform].completedProjects++;\n  }\n  \n  // Categorize projects by status movement\n  if (newStatus === 'LIVE' || newStatus === 'CREO PRODUCTION' || newStatus === 'UA' || newStatus === 'AUTO UA') {\n    aggregated.projectsByStatus.moved_to_production.push({\n      name: projectName,\n      team: team,\n      platform: platform,\n      previousStatus: previousStatus,\n      date: date\n    });\n  } else if (newStatus === 'DEVELOPMENT' || newStatus === 'WAITING FOR DEV') {\n    aggregated.projectsByStatus.in_development.push({\n      name: projectName,\n      team: team,\n      platform: platform\n    });\n  } else if (newStatus === 'QA') {\n    aggregated.projectsByStatus.in_qa.push({\n      name: projectName,\n      team: team,\n      platform: platform\n    });\n  } else if (newStatus === 'BLOCKED' || newStatus === 'SUSPENDED' || newStatus === 'REJECTED') {\n    aggregated.projectsByStatus.blocked.push({\n      name: projectName,\n      team: team,\n      platform: platform,\n      status: newStatus,\n      reason: whatsNew\n    });\n  }\n  \n  if (previousStatus === 'BACKLOG') {\n    aggregated.projectsByStatus.new_projects.push({\n      name: projectName,\n      team: team,\n      platform: platform,\n      movedTo: newStatus\n    });\n  }\n  \n  // Add to raw records for AI\n  aggregated.records.push({\n    date: date,\n    projectName: projectName,\n    team: team,\n    platform: platform,\n    previousStatus: previousStatus,\n    newStatus: newStatus,\n    version: version,\n    releaseType: releaseType,\n    changedBy: changedBy,\n    whatsNew: whatsNew,\n    statusTransition: transitionKey\n  });\n}\n\n// Convert Sets to arrays for JSON serialization\nfor (const team in aggregated.teamMetrics) {\n  aggregated.teamMetrics[team].projectsWorkedOn = Array.from(aggregated.teamMetrics[team].projectsWorkedOn);\n}\nfor (const platform in aggregated.platformMetrics) {\n  aggregated.platformMetrics[platform].projects = Array.from(aggregated.platformMetrics[platform].projects);\n}\nfor (const week in aggregated.weeklyTrends) {\n  aggregated.weeklyTrends[week].projects = Array.from(aggregated.weeklyTrends[week].projects);\n}\n\n// Calculate summary statistics\naggregated.summary = {\n  totalTeamsActive: Object.keys(aggregated.teamMetrics).length,\n  totalPlatformsActive: Object.keys(aggregated.platformMetrics).length,\n  projectsLaunched: aggregated.projectsByStatus.moved_to_production.length,\n  projectsInDevelopment: aggregated.projectsByStatus.in_development.length,\n  projectsInQA: aggregated.projectsByStatus.in_qa.length,\n  projectsBlocked: aggregated.projectsByStatus.blocked.length,\n  newProjectsStarted: aggregated.projectsByStatus.new_projects.length,\n  monthlyVelocity: Math.round(aggregated.projectsByStatus.moved_to_production.length / 4) // Average per week\n};\n\nreturn [{ json: aggregated }];"
+        },
+        "id": "16ad27dd-71bd-4ee3-a504-4252ab262a07",
+        "name": "Process Monthly Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1152,
+          -448
+        ],
+        "notes": "Aggregates and processes monthly data (reproducing Python logic)"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Process and aggregate weekly data (reproducing Python logic from aggregate_reports.py)\nconst records = $input.all();\nconst reportContext = $node['Set Weekly Report Context'].json;\n\n// Initialize aggregation structures\nlet aggregated = {\n  reportType: 'weekly',\n  period: reportContext.periodDescription,\n  totalChanges: records.length,\n  executionTime: reportContext.executionTime,\n  \n  // Status flow tracking\n  statusTransitions: {},\n  \n  // Team metrics\n  teamMetrics: {},\n  \n  // Platform distribution\n  platformMetrics: {},\n  \n  // Projects by status\n  projectsByStatus: {\n    moved_to_production: [],\n    in_development: [],\n    in_qa: [],\n    blocked: [],\n    new_projects: []\n  },\n  \n  // Raw records for AI\n  records: []\n};\n\n// Process each record\nfor (const item of records) {\n  const record = item.json;\n  \n  // Extract fields (n8n returns them with property_ prefix)\n  const date = record.property_date?.start || null;\n  const projectName = record.property_project_name || 'Unknown';\n  const team = record.property_team || 'Unknown';\n  const platform = record.property_platform || 'Unknown';\n  const previousStatus = record.property_previous_status || 'Unknown';\n  const newStatus = record.property_new_status || 'Unknown';\n  const version = record.property_version || 'Unknown';\n  const releaseType = record.property_release_type || null;\n  const changedBy = record.property_changed_by || null;\n  const whatsNew = record.property_whats_new || null;\n  \n  // Track status transitions\n  const transitionKey = `${previousStatus} → ${newStatus}`;\n  if (!aggregated.statusTransitions[transitionKey]) {\n    aggregated.statusTransitions[transitionKey] = {\n      count: 0,\n      projects: []\n    };\n  }\n  aggregated.statusTransitions[transitionKey].count++;\n  aggregated.statusTransitions[transitionKey].projects.push(projectName);\n  \n  // Track team metrics\n  if (!aggregated.teamMetrics[team]) {\n    aggregated.teamMetrics[team] = {\n      totalChanges: 0,\n      projectsWorkedOn: new Set(),\n      statusChanges: []\n    };\n  }\n  aggregated.teamMetrics[team].totalChanges++;\n  aggregated.teamMetrics[team].projectsWorkedOn.add(projectName);\n  aggregated.teamMetrics[team].statusChanges.push(transitionKey);\n  \n  // Track platform metrics\n  if (!aggregated.platformMetrics[platform]) {\n    aggregated.platformMetrics[platform] = {\n      totalChanges: 0,\n      projects: new Set()\n    };\n  }\n  aggregated.platformMetrics[platform].totalChanges++;\n  aggregated.platformMetrics[platform].projects.add(projectName);\n  \n  // Categorize projects by status movement\n  if (newStatus === 'LIVE' || newStatus === 'CREO PRODUCTION' || newStatus === 'UA' || newStatus === 'AUTO UA') {\n    aggregated.projectsByStatus.moved_to_production.push({\n      name: projectName,\n      team: team,\n      platform: platform,\n      previousStatus: previousStatus\n    });\n  } else if (newStatus === 'DEVELOPMENT' || newStatus === 'WAITING FOR DEV') {\n    aggregated.projectsByStatus.in_development.push({\n      name: projectName,\n      team: team,\n      platform: platform\n    });\n  } else if (newStatus === 'QA') {\n    aggregated.projectsByStatus.in_qa.push({\n      name: projectName,\n      team: team,\n      platform: platform\n    });\n  } else if (newStatus === 'BLOCKED' || newStatus === 'SUSPENDED' || newStatus === 'REJECTED') {\n    aggregated.projectsByStatus.blocked.push({\n      name: projectName,\n      team: team,\n      platform: platform,\n      status: newStatus,\n      reason: whatsNew\n    });\n  }\n  \n  if (previousStatus === 'BACKLOG') {\n    aggregated.projectsByStatus.new_projects.push({\n      name: projectName,\n      team: team,\n      platform: platform,\n      movedTo: newStatus\n    });\n  }\n  \n  // Add to raw records for AI\n  aggregated.records.push({\n    date: date,\n    projectName: projectName,\n    team: team,\n    platform: platform,\n    previousStatus: previousStatus,\n    newStatus: newStatus,\n    version: version,\n    releaseType: releaseType,\n    changedBy: changedBy,\n    whatsNew: whatsNew,\n    statusTransition: transitionKey\n  });\n}\n\n// Convert Sets to arrays for JSON serialization\nfor (const team in aggregated.teamMetrics) {\n  aggregated.teamMetrics[team].projectsWorkedOn = Array.from(aggregated.teamMetrics[team].projectsWorkedOn);\n}\nfor (const platform in aggregated.platformMetrics) {\n  aggregated.platformMetrics[platform].projects = Array.from(aggregated.platformMetrics[platform].projects);\n}\n\n// Calculate summary statistics\naggregated.summary = {\n  totalTeamsActive: Object.keys(aggregated.teamMetrics).length,\n  totalPlatformsActive: Object.keys(aggregated.platformMetrics).length,\n  projectsLaunched: aggregated.projectsByStatus.moved_to_production.length,\n  projectsInDevelopment: aggregated.projectsByStatus.in_development.length,\n  projectsInQA: aggregated.projectsByStatus.in_qa.length,\n  projectsBlocked: aggregated.projectsByStatus.blocked.length,\n  newProjectsStarted: aggregated.projectsByStatus.new_projects.length\n};\n\nreturn [{ json: aggregated }];"
+        },
+        "id": "7854103d-b0c1-4161-a141-40435e545e73",
+        "name": "Process Weekly Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1360,
+          -832
+        ],
+        "notes": "Aggregates and processes weekly data (reproducing Python logic)"
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "https://www.notion.so/viragames/d94056721a9b4a4fa836743010fafec7?v=7c43f3d9b9594ed5974bb22671399dce&source=copy_link",
+            "mode": "url"
+          },
+          "returnAll": true,
+          "filterType": "manual",
+          "filters": {
+            "conditions": [
+              {
+                "key": "Date|date",
+                "condition": "past_month"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          -1344,
+          -448
+        ],
+        "id": "df28dbbe-ab4c-468c-a1f5-00dc49eea773",
+        "name": "Get Monthly Status Changes",
+        "credentials": {
+          "notionApi": {
+            "id": "dvG81BygcxjHVM4C",
+            "name": "Manager's Home"
+          }
+        },
+        "notes": "Fetches status changes from past month"
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "https://www.notion.so/viragames/d94056721a9b4a4fa836743010fafec7?v=7c43f3d9b9594ed5974bb22671399dce&source=copy_link",
+            "mode": "url"
+          },
+          "returnAll": true,
+          "filterType": "manual",
+          "filters": {
+            "conditions": [
+              {
+                "key": "Date|date",
+                "condition": "past_week"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          -1568,
+          -832
+        ],
+        "id": "69fe3a24-5237-434e-979a-a320c728f27d",
+        "name": "Get Weekly Status Changes",
+        "credentials": {
+          "notionApi": {
+            "id": "dvG81BygcxjHVM4C",
+            "name": "Manager's Home"
+          }
+        },
+        "notes": "Fetches status changes from past week"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Set report type for weekly trigger\nconst today = new Date();\nconst lastWeek = new Date(today);\nlastWeek.setDate(today.getDate() - 7);\n\nreturn [\n  {\n    json: {\n      reportType: 'weekly',\n      startDate: lastWeek.toISOString(),\n      endDate: today.toISOString(),\n      periodDescription: `Weekly Report: ${lastWeek.toLocaleDateString()} - ${today.toLocaleDateString()}`,\n      executionTime: today.toISOString()\n    }\n  }\n];"
+        },
+        "id": "0e82c992-ab9c-4d6b-9a36-1b5e84f4e71f",
+        "name": "Set Weekly Report Context",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1760,
+          -832
+        ],
+        "notes": "Prepares context for weekly report"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            },
+            "conditions": [
+              {
+                "id": "a03089b5-f52d-42f5-b94f-9bb7add97f30",
+                "leftValue": "={{ $json.isLastDayOfMonth }}",
+                "rightValue": false,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "97625c59-76cd-48b7-9c10-208f25307175",
+        "name": "Is Last Day? (Monthly)",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          -1568,
+          -432
+        ],
+        "notes": "Only proceed if today is the last day of the month"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Check if today is the last day of the month (for monthly trigger)\nconst today = new Date();\nconst tomorrow = new Date(today);\ntomorrow.setDate(today.getDate() + 1);\n\n// If tomorrow is the 1st, then today is the last day of the month\nconst isLastDayOfMonth = tomorrow.getDate() === 1;\n\n// Get current month info for reporting\nconst currentMonth = today.toLocaleString('default', { month: 'long', year: 'numeric' });\nconst currentDate = today.getDate();\nconst currentYear = today.getFullYear();\nconst currentMonthNum = today.getMonth() + 1;\n\nreturn [\n  {\n    json: {\n      isLastDayOfMonth: isLastDayOfMonth,\n      currentDate: currentDate,\n      currentMonth: currentMonth,\n      currentMonthNum: currentMonthNum,\n      currentYear: currentYear,\n      reportType: 'monthly',\n      message: isLastDayOfMonth \n        ? `Today is the last day of ${currentMonth}. Proceeding with monthly report.`\n        : `Today is day ${currentDate} of ${currentMonth}. Not the last day - skipping monthly report.`,\n      executionTime: today.toISOString()\n    }\n  }\n];"
+        },
+        "id": "75a5e557-7abc-4ed7-8e6f-ccecb882a0b8",
+        "name": "Check If Last Day of Month",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1760,
+          -432
+        ],
+        "notes": "Checks if today is the last day of the current month (for monthly trigger only)"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 10 * * *"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -2000,
+          -432
+        ],
+        "id": "7edde932-3e10-427b-bd10-63b7d25fb78c",
+        "name": "Monthly Trigger - Daily Check",
+        "notes": "Runs daily at 10:00 AM - will check if it's the last day of month"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 9 * * 1"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -1968,
+          -832
+        ],
+        "id": "36ccc435-d09a-4cd6-9822-746b4a821694",
+        "name": "Weekly Trigger - Monday 9AM",
+        "notes": "Runs every Monday at 9:00 AM for weekly report"
+      },
+      {
+        "parameters": {
+          "model": "=us.anthropic.claude-sonnet-4-20250514-v1:0",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAwsBedrock",
+        "typeVersion": 1,
+        "position": [
+          -448,
+          -400
+        ],
+        "id": "c830eff5-325f-4472-8c4c-8388b8b463c3",
+        "name": "AWS Bedrock Chat Model",
+        "credentials": {
+          "aws": {
+            "id": "ygdVHEZPhZgbL3vD",
+            "name": "AWS account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "AI Agent - Generate Report": {
+        "main": [
+          [
+            {
+              "node": "Send Report to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Monthly Data": {
+        "main": [
+          [
+            {
+              "node": "AI Agent - Generate Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Weekly Data": {
+        "main": [
+          [
+            {
+              "node": "AI Agent - Generate Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Monthly Status Changes": {
+        "main": [
+          [
+            {
+              "node": "Process Monthly Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Weekly Status Changes": {
+        "main": [
+          [
+            {
+              "node": "Process Weekly Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Weekly Report Context": {
+        "main": [
+          [
+            {
+              "node": "Get Weekly Status Changes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Is Last Day? (Monthly)": {
+        "main": [
+          [
+            {
+              "node": "Get Monthly Status Changes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check If Last Day of Month": {
+        "main": [
+          [
+            {
+              "node": "Is Last Day? (Monthly)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Monthly Trigger - Daily Check": {
+        "main": [
+          [
+            {
+              "node": "Check If Last Day of Month",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Weekly Trigger - Monday 9AM": {
+        "main": [
+          [
+            {
+              "node": "Set Weekly Report Context",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS Bedrock Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent - Generate Report",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "db8c34fa8115e7968d24f8e10f4a110dda7aba2143d2fb70a8ce47f420de93d6"
+    }
+  }

@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+*.cover
+*.log
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+.python-version
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables and sensitive files
+.env
+.env.local
+.env.*.local
+*.env
+src/.env
+
+# Project-specific sensitive files
+Claude.md
+claude.md
+n8n_development_template.md
+TEMPLATES_README.md
+
+# API Keys and Secrets
+*_api_key*
+*_secret*
+*.key
+*.pem
+
+# Test data with potential sensitive info
+test_mockup_data.json
+cleanup_test_data.json
+cleanup_test_report.json
+
+# Output files that might contain sensitive data
+output/
+src/output/
+test_outputs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# n8n workflow backups
+*.backup
+*_backup.json
+
+# Local development files
+scratch/
+notes/
+todo.txt
+TODO.md

@@ -1,0 +1,205 @@
+{
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          0
+        ],
+        "id": "f4d5a48c-b0b7-47cb-a451-d7db26a0f210",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          160
+        ],
+        "id": "72cb93a5-0ef4-4a42-8ee1-e91f97780333",
+        "name": "Schedule Trigger1"
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "https://www.notion.so/viragames/d94056721a9b4a4fa836743010fafec7?v=7c43f3d9b9594ed5974bb22671399dce&source=copy_link",
+            "mode": "url"
+          },
+          "returnAll": true,
+          "filterType": "manual",
+          "filters": {
+            "conditions": [
+              {
+                "key": "Date|date",
+                "condition": "past_week"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          256,
+          64
+        ],
+        "id": "2a437e72-19ba-416c-a4ce-646423e2b4ba",
+        "name": "Get many database pages",
+        "credentials": {
+          "notionApi": {
+            "id": "dvG81BygcxjHVM4C",
+            "name": "Manager's Home"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $('Get many database pages') }}",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          432,
+          64
+        ],
+        "id": "91bd8a66-e5eb-4254-aefa-bab121d4f19a",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-5",
+            "mode": "list",
+            "cachedResultName": "gpt-5"
+          },
+          "options": {
+            "temperature": 0.3
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          304,
+          272
+        ],
+        "id": "b3dd66e6-fbfd-4f51-93b3-a91c501cfcf9",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "2kX9gdgCyRSPWTXu",
+            "name": "N8N_Test_Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C09111P5JN6",
+            "mode": "list",
+            "cachedResultName": "project-status-update"
+          },
+          "otherOptions": {}
+        },
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.3,
+        "position": [
+          784,
+          64
+        ],
+        "id": "e27a0112-57af-45b8-9e01-0560983e35ed",
+        "name": "Send a message",
+        "webhookId": "d13a6a14-732d-4167-bcce-57ba4826b97d",
+        "credentials": {
+          "slackApi": {
+            "id": "h4hYe6hY0YHsd0no",
+            "name": "Vira Bot"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get many database pages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger1": {
+        "main": [
+          [
+            {
+              "node": "Get many database pages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many database pages": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "db8c34fa8115e7968d24f8e10f4a110dda7aba2143d2fb70a8ce47f420de93d6"
+    }
+  }

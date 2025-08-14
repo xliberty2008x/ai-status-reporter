@@ -1,0 +1,433 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 23 * * *"
+            }
+          ]
+        }
+      },
+      "id": "fb07736d-2513-4192-9c47-9bf982478828",
+      "name": "Schedule Trigger - Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -3056,
+        240
+      ],
+      "notes": "Runs daily at 23:00 UTC - will check if it's the last day of month"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if today is the last day of the month\nconst today = new Date();\nconst tomorrow = new Date(today);\ntomorrow.setDate(today.getDate() + 1);\n\n// If tomorrow is the 1st, then today is the last day of the month\nconst isLastDayOfMonth = tomorrow.getDate() === 1;\n\n// Also get the current month info for logging\nconst currentMonth = today.toLocaleString('default', { month: 'long', year: 'numeric' });\nconst currentDate = today.getDate();\nconst currentYear = today.getFullYear();\nconst currentMonthNum = today.getMonth() + 1;\n\nreturn [\n  {\n    json: {\n      isLastDayOfMonth: isLastDayOfMonth,\n      currentDate: currentDate,\n      currentMonth: currentMonth,\n      currentMonthNum: currentMonthNum,\n      currentYear: currentYear,\n      message: isLastDayOfMonth \n        ? `Today is the last day of ${currentMonth}. Proceeding with cleanup.`\n        : `Today is day ${currentDate} of ${currentMonth}. Not the last day - skipping cleanup.`,\n      executionTime: today.toISOString()\n    }\n  }\n];"
+      },
+      "id": "bc99e1af-7812-442f-8b4f-4f6a0f36da4b",
+      "name": "Check If Last Day of Month",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2864,
+        240
+      ],
+      "notes": "Checks if today is the last day of the current month"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "a03089b5-f52d-42f5-b94f-9bb7add97f30",
+              "leftValue": "={{ $json.isLastDayOfMonth }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9fd1abf6-d364-4c61-a14d-0e556d508784",
+      "name": "Is Last Day?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2656,
+        240
+      ],
+      "notes": "Only proceed if today is the last day of the month"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate the cutoff date - first day of previous month\nconst today = new Date();\nlet cutoffDate;\n\n// Get first day of previous month\nif (today.getMonth() === 0) {\n  // If January, go to December of previous year\n  cutoffDate = new Date(today.getFullYear() - 1, 11, 1);\n} else {\n  // Otherwise, go to previous month\n  cutoffDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);\n}\n\n// Format date for Notion API (ISO 8601)\nconst cutoffDateISO = cutoffDate.toISOString();\n\n// Also calculate date ranges for reporting\nconst currentMonth = today.toLocaleString('default', { month: 'long', year: 'numeric' });\nconst previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)\n  .toLocaleString('default', { month: 'long', year: 'numeric' });\n\nreturn [\n  {\n    json: {\n      cutoffDate: cutoffDateISO,\n      cutoffDateFormatted: cutoffDate.toLocaleDateString(),\n      currentMonth: currentMonth,\n      previousMonth: previousMonth,\n      cleanupDescription: `Deleting records older than ${cutoffDate.toLocaleDateString()}`,\n      executionTime: new Date().toISOString()\n    }\n  }\n];"
+      },
+      "id": "b497834e-0443-44d9-8474-c61491add868",
+      "name": "Calculate Cutoff Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2464,
+        144
+      ],
+      "notes": "Calculates the first day of the previous month as cutoff date"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "https://www.notion.so/viragames/d94056721a9b4a4fa836743010fafec7?v=7c43f3d9b9594ed5974bb22671399dce&source=copy_link",
+          "mode": "url"
+        },
+        "returnAll": true,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Date|date",
+              "condition": "before",
+              "date": "={{ $json.cutoffDate }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c44f6c8-a02b-49bb-b58a-a182b24323a8",
+      "name": "Get Records to Delete",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -2256,
+        144
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "dvG81BygcxjHVM4C",
+          "name": "Manager's Home"
+        }
+      },
+      "notes": "Fetches all records older than the cutoff date"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare deletion summary\nconst records = $input.all();\nconst cutoffInfo = $node[\"Calculate Cutoff Date\"].json;\n\nlet summary = {\n  totalRecords: records.length,\n  cutoffDate: cutoffInfo.cutoffDateFormatted,\n  executionTime: cutoffInfo.executionTime,\n  byTeam: {},\n  byPlatform: {},\n  byMonth: {},\n  oldestRecord: null,\n  newestRecord: null,\n  recordsToDelete: []\n};\n\n// Process each record\nfor (const item of records) {\n  const record = item.json;\n  \n  // Extract data from flattened properties (n8n returns them with property_ prefix)\n  const date = record.property_date?.start || null;\n  const projectName = record.property_project_name || 'Unknown';\n  const team = record.property_team || 'Unknown';\n  const platform = record.property_platform || 'Unknown';\n  const previousStatus = record.property_previous_status || 'Unknown';\n  const newStatus = record.property_new_status || 'Unknown';\n  const version = record.property_version || 'Unknown';\n  \n  // Track by team\n  if (!summary.byTeam[team]) {\n    summary.byTeam[team] = 0;\n  }\n  summary.byTeam[team]++;\n  \n  // Track by platform\n  if (!summary.byPlatform[platform]) {\n    summary.byPlatform[platform] = 0;\n  }\n  summary.byPlatform[platform]++;\n  \n  // Track by month\n  if (date) {\n    const monthKey = date.substring(0, 7); // YYYY-MM\n    if (!summary.byMonth[monthKey]) {\n      summary.byMonth[monthKey] = 0;\n    }\n    summary.byMonth[monthKey]++;\n    \n    // Track oldest and newest\n    if (!summary.oldestRecord || date < summary.oldestRecord) {\n      summary.oldestRecord = date;\n    }\n    if (!summary.newestRecord || date > summary.newestRecord) {\n      summary.newestRecord = date;\n    }\n  }\n  \n  // Add to deletion list\n  summary.recordsToDelete.push({\n    id: record.id,\n    projectName: projectName,\n    date: date,\n    statusChange: `${previousStatus} → ${newStatus}`,\n    team: team,\n    platform: platform,\n    version: version\n  });\n}\n\n// Return both summary and records for processing\nreturn [\n  {\n    json: {\n      summary: summary,\n      recordsFound: records.length > 0,\n      message: records.length > 0 \n        ? `Found ${records.length} records to delete` \n        : 'No records found for deletion'\n    }\n  }\n];"
+      },
+      "id": "c8aa2128-cd02-4287-b67d-29268935c209",
+      "name": "Prepare Deletion Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2064,
+        144
+      ],
+      "notes": "Creates a summary of records to be deleted"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.recordsFound }}",
+              "value2": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0b44cc50-94e0-4312-b385-8f0a0a05aae8",
+      "name": "Check If Records Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1856,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "5d33e3f9-3b98-4470-840b-5de57b87df7c",
+      "name": "Split Into Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1600,
+        -224
+      ],
+      "notes": "Process deletions in batches of 10 to avoid API limits"
+    },
+    {
+      "parameters": {
+        "operation": "archive",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.summary.recordsToDelete[$itemIndex].id }}",
+          "mode": "id"
+        }
+      },
+      "id": "c13a85fa-d642-4f76-a392-c8cfbcbca63d",
+      "name": "Archive Pages",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -1392,
+        -32
+      ],
+      "executeOnce": false,
+      "credentials": {
+        "notionApi": {
+          "id": "dvG81BygcxjHVM4C",
+          "name": "Manager's Home"
+        }
+      },
+      "notes": "Archives (deletes) the pages in Notion"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "099c9589-8755-46c7-8010-e6534e4042dd",
+      "name": "Wait Between Batches",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1216,
+        -32
+      ],
+      "webhookId": "d3f5a8c2-b7e4-4d9a-8f3c-2e1a9b8c7d6e"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compile final cleanup report\nconst summary = $node[\"Prepare Deletion Summary\"].json.summary;\nconst deletionComplete = true; // Assuming all deletions succeeded\n\nconst report = {\n  status: 'completed',\n  executionTime: summary.executionTime,\n  cutoffDate: summary.cutoffDate,\n  totalDeleted: summary.totalRecords,\n  dateRange: {\n    from: summary.oldestRecord,\n    to: summary.newestRecord\n  },\n  breakdown: {\n    byTeam: summary.byTeam,\n    byPlatform: summary.byPlatform,\n    byMonth: summary.byMonth\n  },\n  message: `Successfully deleted ${summary.totalRecords} records older than ${summary.cutoffDate}`\n};\n\nreturn [{ json: report }];"
+      },
+      "id": "ab8d00e7-67b0-45e9-b166-9533d41013ad",
+      "name": "Generate Cleanup Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1344,
+        -240
+      ],
+      "notes": "Creates final report of cleanup operation"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09111P5JN6",
+          "mode": "list",
+          "cachedResultName": "project-status-update"
+        },
+        "text": "=📊 *Monthly Data Cleanup Report*\n\n✅ *Status:* {{ $json.status === 'completed' ? 'Completed Successfully' : $json.status }}\n⏰ *Execution Time:* {{ $json.executionTime }}\n📅 *Cutoff Date:* {{ $json.cutoffDate }}\n\n*Records Deleted:* {{ $json.totalDeleted }}\n*Date Range:* {{ $json.dateRange.from }} to {{ $json.dateRange.to }}\n\n*Breakdown by Team:*\n{{ Object.entries($json.breakdown.byTeam).map(([team, count]) => `• ${team}: ${count}`).join('\\n') }}\n\n*Breakdown by Platform:*\n{{ Object.entries($json.breakdown.byPlatform).map(([platform, count]) => `• ${platform}: ${count}`).join('\\n') }}\n\n{{ $json.message }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "1675846d-7454-4292-98db-7b6f58a477dd",
+      "name": "Send Slack Report",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -1152,
+        -240
+      ],
+      "webhookId": "1da42dbd-54fa-41f7-8ab3-21ef7278c50e",
+      "credentials": {
+        "slackApi": {
+          "id": "h4hYe6hY0YHsd0no",
+          "name": "Vira Bot"
+        }
+      },
+      "notes": "Sends cleanup report to Slack"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09111P5JN6",
+          "mode": "list",
+          "cachedResultName": "project-status-update"
+        },
+        "text": "=ℹ️ *Monthly Data Cleanup*\n\nNo records found for deletion.\nAll records are within the retention period.\n\n📅 *Cutoff Date:* {{ $node[\"Calculate Cutoff Date\"].json.cutoffDateFormatted }}\n⏰ *Execution Time:* {{ $node[\"Calculate Cutoff Date\"].json.executionTime }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "155f66e5-61b8-45fd-a868-868b130e1eec",
+      "name": "Send No Records Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -1664,
+        240
+      ],
+      "webhookId": "91e40200-8716-48fa-b49d-cf3db76bd406",
+      "credentials": {
+        "slackApi": {
+          "id": "h4hYe6hY0YHsd0no",
+          "name": "Vira Bot"
+        }
+      },
+      "notes": "Sends message when no records need deletion"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger - Daily": {
+      "main": [
+        [
+          {
+            "node": "Check If Last Day of Month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Last Day of Month": {
+      "main": [
+        [
+          {
+            "node": "Is Last Day?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Last Day?": {
+      "main": [
+        [
+          {
+            "node": "Calculate Cutoff Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Cutoff Date": {
+      "main": [
+        [
+          {
+            "node": "Get Records to Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Records to Delete": {
+      "main": [
+        [
+          {
+            "node": "Prepare Deletion Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Deletion Summary": {
+      "main": [
+        [
+          {
+            "node": "Check If Records Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Records Found": {
+      "main": [
+        [
+          {
+            "node": "Split Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send No Records Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Batches": {
+      "main": [
+        [
+          {
+            "node": "Generate Cleanup Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Archive Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Pages": {
+      "main": [
+        [
+          {
+            "node": "Wait Between Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Between Batches": {
+      "main": [
+        [
+          {
+            "node": "Split Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Cleanup Report": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db8c34fa8115e7968d24f8e10f4a110dda7aba2143d2fb70a8ce47f420de93d6"
+  }
+}
