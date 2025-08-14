@@ -1,0 +1,207 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message",
+          "app_mention"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C09111P5JN6",
+          "mode": "list",
+          "cachedResultName": "project-status-update"
+        },
+        "options": {
+          "userIds": []
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "3223d777-29aa-4429-9e66-76e0cbaaa47d",
+      "name": "Slack Trigger",
+      "webhookId": "41c56194-b020-4634-8e88-f5b3d43da3f7",
+      "credentials": {
+        "slackApi": {
+          "id": "h4hYe6hY0YHsd0no",
+          "name": "Vira Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Slack Trigger') }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        0
+      ],
+      "id": "1325e2d9-1dc3-439a-b08b-ff84e078c475",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Slack Trigger') }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        208
+      ],
+      "id": "eadbd30b-ecc5-4ba9-b546-41ee76c2a654",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "https://www.notion.so/YOUR_WORKSPACE/YOUR_DATABASE_ID_HERE?v=YOUR_DATABASE_ID_HERE&source=copy_link",
+          "mode": "url"
+        },
+        "returnAll": true,
+        "filterType": "json",
+        "filterJson": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Filters__JSON_', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        208
+      ],
+      "id": "8cf7d99f-7a46-479a-b5c7-689d8a56f684",
+      "name": "Get many database pages in Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "dvG81BygcxjHVM4C",
+          "name": "Manager's Home"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09111P5JN6",
+          "mode": "list",
+          "cachedResultName": "project-status-update"
+        },
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "0ecee59e-03b8-48f9-916b-eb0f5f0ef2cd",
+      "name": "Send a message",
+      "webhookId": "f27dd0a4-85da-4244-aa5d-554c24c32461",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "jfBtwyKgUkoxl3LD",
+          "name": "Slack account Vira Games"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "=us.anthropic.claude-sonnet-4-20250514-v1:0",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAwsBedrock",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        208
+      ],
+      "id": "dad9df94-73bf-4a26-a4d2-64fceabdaf28",
+      "name": "AWS Bedrock Chat Model",
+      "credentials": {
+        "aws": {
+          "id": "ygdVHEZPhZgbL3vD",
+          "name": "AWS account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages in Notion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Bedrock Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_DATABASE_ID_HEREYOUR_DATABASE_ID_HERE"
+  }
+}

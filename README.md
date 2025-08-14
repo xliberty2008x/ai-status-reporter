@@ -131,19 +131,31 @@ In your Slack channel `#project-status-update`:
 
 ## 🔄 n8n Workflows
 
+### Important: Workflow Setup
+
+The n8n workflow files in this repository are sanitized versions with placeholders for sensitive data. Before using them:
+
+1. Copy the `.sanitized.json` files and remove the `.sanitized` suffix
+2. Replace all placeholders with your actual values:
+   - `YOUR_DATABASE_ID_HERE` - Your Notion database ID
+   - `YOUR_WORKSPACE` - Your Notion workspace name
+   - `YOUR_SLACK_TOKEN_HERE` - Your Slack bot token
+   - `YOUR_WEBHOOK_URL_HERE` - Your Slack webhook URL
+   - `YOUR_INSTANCE_ID_HERE` - Your n8n instance ID
+
 ### Available Workflows
 
-1. **`clean_log_previous_month.json`**
+1. **`clean_log_previous_month.sanitized.json`**
    - Runs daily at 23:00 UTC
    - Checks for last day of month
    - Removes records older than 1 month
 
-2. **`report_previous_week_month.json`**
+2. **`report_previous_week_month.sanitized.json`**
    - Weekly: Every Monday at 9 AM
    - Monthly: Last day of month at 10 AM
    - Generates comprehensive reports with AI insights
 
-3. **`ai_agent_track_statuses_enhanced.json`**
+3. **`ai_agent_track_statuses_enhanced.sanitized.json`**
    - Real-time Slack integration
    - Natural language processing
    - Dynamic Notion filtering

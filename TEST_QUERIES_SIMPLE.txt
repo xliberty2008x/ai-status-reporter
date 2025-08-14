@@ -1,24 +1,24 @@
 ================================================================================
-ТЕСТОВІ ЗАПИТИ ДЛЯ ПЕРЕВІРКИ АГЕНТА
+TEST QUERIES FOR AGENT VERIFICATION
 ================================================================================
 
-Базові запити для швидкої перевірки:
+Basic queries for quick verification:
 
-1. Покажи проекти в QA
-2. Що змінилось сьогодні?
-3. Проекти AMZ Growth Team
-4. iOS проекти
-5. Заблоковані проекти
-6. Що в DEVELOPMENT?
-7. Покажи зміни за цей тиждень
-8. Fire TV статуси
-9. Проекти що стали LIVE
-10. AMZ Growth Team проекти в QA
-11. Що перейшло з DEVELOPMENT в QA?
-12. Tools Team проекти
-13. Вчорашні зміни
-14. Проекти в WAITING RELEASE
+1. Show projects in QA
+2. What changed today?
+3. AMZ Growth Team projects
+4. iOS projects
+5. Blocked projects
+6. What's in DEVELOPMENT?
+7. Show changes this week
+8. Fire TV statuses
+9. Projects that went LIVE
+10. AMZ Growth Team projects in QA
+11. What moved from DEVELOPMENT to QA?
+12. Tools Team projects
+13. Yesterday's changes
+14. Projects in WAITING RELEASE
 15. help
 
-Якщо всі ці запити працюють - агент налаштований правильно ✅
+If all these queries work - the agent is configured correctly ✅
 ================================================================================

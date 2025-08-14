@@ -58,6 +58,11 @@ claude.md
 n8n_development_template.md
 TEMPLATES_README.md
 
+# Keep these documentation files
+!SLACK_HELP_MESSAGE.txt
+!TEST_QUERIES_SIMPLE.txt
+!src/prompts/*.md
+
 # API Keys and Secrets
 *_api_key*
 *_secret*
@@ -68,6 +73,11 @@ TEMPLATES_README.md
 test_mockup_data.json
 cleanup_test_data.json
 cleanup_test_report.json
+
+# Original n8n workflows with sensitive data
+src/n8n_workflows/*.json
+!src/n8n_workflows/*.sanitized.json
+!src/n8n_workflows/clean_log_workflow_documentation.md
 
 # Output files that might contain sensitive data
 output/
